@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>사건기록 07 - 마지막 20분</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d1015;color:#eee;font-family:Arial,sans-serif}
+#app{max-width:760px;margin:auto;padding:14px}h1{font-size:23px;margin:4px 0}.sub{color:#9da7b3;line-height:1.5}
+.card{background:#181e27;border:1px solid #333d4b;border-radius:12px;padding:14px;margin:10px 0}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.nav button,.person,.act{background:#303947;color:#fff;border:0;border-radius:8px;padding:10px}.nav button.on{background:#5b718a}
+#content{background:#10151c;border-radius:9px;padding:14px;line-height:1.65;min-height:250px}.person{display:block;width:100%;text-align:left;margin:7px 0}
+.tag{display:inline-block;background:#294331;color:#aee7b8;border-radius:6px;padding:4px 7px;margin:3px;font-size:12px}
+select,.code{width:100%;padding:12px;background:#0c1015;color:#fff;border:1px solid #5a6675;border-radius:7px;font-size:16px}.act{width:100%;margin-top:8px;background:#526c87}
+#msg{min-height:35px;color:#ffd76a;margin-top:9px}.red{color:#ff8f8f}.green{color:#9fe0b0}
+hr{border:0;border-top:1px solid #303844}
+.small{font-size:13px;color:#9da7b3}
+</style></head>
+<body><div id="app">
+<h1>🕵️ 사건기록 07: 마지막 20분</h1>
+<div class="sub">저녁 9시, 한 회사의 대표가 사무실에서 숨진 채 발견됐다. 사건 시간은 <b>20:35~20:55</b>로 추정된다.<br>목격자는 없었다. 하지만 기록은 거짓말을 하지 않는다.</div>
+
+<div class="card">
+<b>📌 사건 개요</b>
+<p>사망 원인은 게임상 단순히 <b>사망</b>으로만 처리한다. 현장에는 외부 침입 흔적이 없었고, 책상 위의 휴대전화와 사무실 출입기록이 중요한 단서가 된다.</p>
+</div>
+
+<div class="nav">
+<button class="on" onclick="tab(0,this)">용의자</button><button onclick="tab(1,this)">시간표</button><button onclick="tab(2,this)">기록</button><button onclick="tab(3,this)">현장</button>
+</div>
+<div id="content"></div>
+
+<div class="card">
+<b>🔎 조사 현황</b><div id="status"></div>
+</div>
+
+<div class="card">
+<b>🧠 최종 추리</b>
+<p class="small">모든 용의자를 조사하고, '말한 시간'과 '기록된 시간'의 차이를 찾아보세요.</p>
+<select id="answer"><option value="">범인을 선택하세요</option><option>강현우</option><option>서지민</option><option>설진우</option><option>윤서아</option><option>정태준</option></select>
+<button class="act" onclick="solve()">범인 지목</button>
+<div id="msg"></div>
+</div>
+</div>
+
+<script>
+const suspects=[
+{name:"강현우",say:"20:20부터 집에 있었다고 주장.",detail:"택시 앱 기록에 20:18 회사 출발 기록이 있고, 집 근처 편의점 결제는 20:49이다.",point:"회사에서 나온 것은 확실하지만 20:35 이후 위치가 완전히 확인되지는 않는다."},
+{name:"서지민",say:"20:30에 회의실에서 나와 바로 귀가했다고 주장.",detail:"건물 로비 CCTV에는 20:31에 나가는 모습이 있다. 이후 20:52에 친구에게 '집 도착' 메시지를 보냈다.",point:"현재 기록만 보면 사건 시간대에 현장에 돌아온 증거가 없다."},
+{name:"설진우",say:"20:40부터 주차장에서 전화 통화를 했다고 주장.",detail:"통화 기록은 20:41~20:54. 그러나 통화 연결 위치는 회사 건물 안쪽 중계기였다.",point:"주차장에 있었다는 말과 통화 위치 기록이 맞지 않는다."},
+{name:"윤서아",say:"20:35부터 온라인 수업을 듣고 있었다고 주장.",detail:"수업 접속은 20:34, 20:43, 20:57 세 번의 서버 기록만 남아 있다. 카메라는 꺼져 있었다.",point:"온라인 접속 기록만으로 실제 위치를 확정할 수 없다."},
+{name:"정태준",say:"20:50에 대표에게 전화를 걸었지만 받지 않았다고 주장.",detail:"통화 기록상 실제 발신 시각은 20:38이다. 대표의 휴대전화에는 20:38 통화가 12초간 연결된 기록이 있다.",point:"그는 통화 시각을 거짓으로 말했다."}
+];
+
+const timeline=[
+"20:18 — 강현우 회사 출발<br>20:31 — 서지민 건물 밖으로 나감<br>20:34 — 윤서아 온라인 수업 접속<br>20:35 — 추정 사건 시간 시작<br>20:38 — 정태준 → 대표 전화 연결(12초)<br>20:41~20:54 — 설진우 통화 연결<br>20:43 — 윤서아 수업 서버 기록<br>20:52 — 서지민 친구에게 귀가 메시지<br>20:54 — 설진우 통화 종료<br>20:55 — 추정 사건 시간 종료<br>20:57 — 윤서아 수업 서버 기록"
+];
+
+const records=[
+"📱 대표 휴대전화: 20:38에 정태준과 12초 통화.<br>📞 설진우의 통화는 연결 위치가 '회사 건물 중계기'로 기록됨.<br>💬 서지민은 20:52에 '집에 도착했다'는 메시지를 보냄.",
+"🚪 출입 시스템: 정태준의 사원증은 20:12에 입실 기록이 있지만 20:55까지 추가 출입 기록이 없다.<br><br>중요: 사무실 내부 이동에는 사원증 기록이 필요하지 않다.",
+"📹 복도 CCTV는 20:32부터 20:47까지 점검으로 녹화가 중단됐다.<br>20:48부터 정상 복구.<br><br>따라서 'CCTV에 안 찍혔다 = 현장에 없었다'는 결론은 위험하다."
+];
+
+const scene=[
+"🪑 책상 위: 대표의 휴대전화, 열려 있는 노트북, 반쯤 식은 차.<br><br>📝 메모: '21시에 계약 관련 서류 확인.'<br><br>🚪 문: 강제 개방 흔적 없음.",
+"🔐 별도 메모: 사무실 출입문은 자동 잠금이지만 내부에서는 자유롭게 나갈 수 있다.<br><br>따라서 범인은 반드시 사원증을 사용해 나갔을 필요가 없다.",
+"🧩 결정적 힌트: 사건 시간대에 '확실한 알리바이'처럼 보이는 기록 중 실제 위치를 보장하지 않는 것이 있다."
+];
+
+let tabNo=0, inspected=new Set();
+
+function tab(n,b){
+ tabNo=n;
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+ render();
+}
+function render(){
+ let c=document.getElementById('content');
+ if(tabNo===0){
+  c.innerHTML='<h3>용의자 5명</h3>'+suspects.map((s,i)=>`<button class="person" onclick="inspect(${i})">👤 <b>${s.name}</b><br><span class="small">${s.say}</span></button>`).join('');
+ }else if(tabNo===1)c.innerHTML='<h3>⏱️ 공식 시간표</h3>'+timeline[0]+'<hr><span class="small">사건 시간은 20:35~20:55. 단, 일부 기록은 실제 위치를 직접 증명하지 않는다.</span>';
+ else if(tabNo===2)c.innerHTML='<h3>📱 전자기록</h3>'+records.join('<hr>');
+ else c.innerHTML='<h3>🔬 현장 조사</h3>'+scene.join('<hr>');
+}
+function inspect(i){
+ inspected.add(i);update();
+ const s=suspects[i];
+ document.getElementById('content').innerHTML=`<h3>👤 ${s.name}</h3><p><b>진술:</b> ${s.say}</p><p><b>확인된 기록:</b> ${s.detail}</p><p><b>수사관 메모:</b> ${s.point}</p><button class="act" onclick="render()">← 목록으로</button>`;
+}
+function update(){
+ document.getElementById('status').innerHTML=[0,1,2,3,4].map(i=>inspected.has(i)?`<span class="tag">✓ ${suspects[i].name}</span>`:'').join('')||'<span class="small">용의자를 조사하세요.</span>';
+}
+function solve(){
+ const a=document.getElementById('answer').value,m=document.getElementById('msg');
+ if(inspected.size<5){m.textContent='⚠️ 아직 조사하지 않은 용의자가 있습니다.';return;}
+ if(a==='설진우'){
+  m.innerHTML='<span class="green">🎉 사건 해결!</span><br>설진우의 통화는 20:41~20:54였지만 연결 위치가 회사 건물 중계기였다. 그가 주장한 \"주차장\"은 기록과 맞지 않는다. 다른 용의자들의 기록에는 불확실성이 있지만, 설진우의 알리바이는 전자기록으로 직접 반박된다.';
+ }else m.innerHTML='<span class="red">❌ 오답.</span><br>한 사람의 진술만 보지 말고, 통화 기록과 위치 기록이 실제 알리바이를 증명하는지 비교해보세요.';
+}
+render();update();
+</script></body></html>
